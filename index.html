@@ -316,7 +316,11 @@ ub.onclick=undo;rb.onclick=redo;
 document.addEventListener('keydown',e=>{const t=e.target.tagName;if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'&&t!=='INPUT'&&t!=='TEXTAREA'){e.preventDefault();e.shiftKey?redo():undo()}});
 window.addEventListener('beforeprint',fit);
 
-(async()=>{const h=location.hash.slice(1);if(h){try{apply(await decode(h));msg('Formuläret har lästs in från länken. Fyll i det som saknas och tryck på ”Skapa delningslänk” för att skicka tillbaka.')}catch(e){msg('Kunde inte läsa uppgifterna i länken.')}}last=JSON.stringify(collect());upd()})();
+async function loadShort(h){const[id,k]=h.split('.');const r=await fetch('d/'+id+'.txt',{cache:'no-store'});if(!r.ok)throw 0;
+ const buf=b64u.dec((await r.text()).trim()),key=await crypto.subtle.importKey('raw',b64u.dec(k),'AES-GCM',false,['decrypt']);
+ const pt=new Uint8Array(await crypto.subtle.decrypt({name:'AES-GCM',iv:buf.subarray(0,12)},key,buf.subarray(12)));
+ return JSON.parse(new TextDecoder().decode(await pipe(pt,DecompressionStream)))}
+(async()=>{const h=location.hash.slice(1);if(h){try{apply(/^[\w-]{4,16}\.[\w-]{16,}$/.test(h)?await loadShort(h):await decode(h));msg('Formuläret har lästs in från länken. Fyll i det som saknas och tryck på ”Skapa delningslänk” för att skicka tillbaka.')}catch(e){msg('Kunde inte läsa uppgifterna i länken.')}}last=JSON.stringify(collect());upd()})();
 </script>
 </body>
 </html>
