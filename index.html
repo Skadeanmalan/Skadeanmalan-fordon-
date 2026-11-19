@@ -88,7 +88,7 @@ input[type=checkbox]{width:17px;height:17px;accent-color:var(--g);margin:0}
  <button class="primary" id="share">🔗 Skapa delningslänk</button>
  <button id="print">🖨 Skriv ut / spara PDF</button>
  <button id="reset">Töm formuläret</button>
- <span class="msg" id="msg">Uppgifterna sparas bara i delningslänken – inget lagras på servern.</span>
+ <span class="msg" id="msg">Ändringar sparas automatiskt på den här enheten.</span>
 </div>
 
 <div class="page">
@@ -311,9 +311,11 @@ document.addEventListener('change',()=>{clearTimeout(tmr);snap()});
 let hist=[],fut=[],last=null,tmr;
 const ub=document.getElementById('undo'),rb=document.getElementById('redo');
 function upd(){ub.disabled=!hist.length;rb.disabled=!fut.length}
-function snap(){if(last===null)return;const s=JSON.stringify(collect());if(s!==last){hist.push(last);if(hist.length>200)hist.shift();last=s;fut=[];upd()}}
-function undo(){clearTimeout(tmr);snap();if(!hist.length)return;fut.push(last);last=hist.pop();apply(JSON.parse(last));upd()}
-function redo(){if(!fut.length)return;hist.push(last);last=fut.pop();apply(JSON.parse(last));upd()}
+const SKEY='skadeanmalan:'+(location.hash.slice(1,40)||'tomt');
+function save(){try{localStorage.setItem(SKEY,last);msg('✓ Sparat '+new Date().toLocaleTimeString('sv-SE',{hour:'2-digit',minute:'2-digit'})+' på den här enheten')}catch(e){}}
+function snap(){if(last===null)return;const s=JSON.stringify(collect());if(s!==last){hist.push(last);if(hist.length>200)hist.shift();last=s;fut=[];upd();save()}}
+function undo(){clearTimeout(tmr);snap();if(!hist.length)return;fut.push(last);last=hist.pop();apply(JSON.parse(last));upd();save()}
+function redo(){if(!fut.length)return;hist.push(last);last=fut.pop();apply(JSON.parse(last));upd();save()}
 ub.onclick=undo;rb.onclick=redo;
 document.addEventListener('keydown',e=>{const t=e.target.tagName;if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'&&t!=='INPUT'&&t!=='TEXTAREA'){e.preventDefault();e.shiftKey?redo():undo()}});
 window.addEventListener('beforeprint',fit);
@@ -322,7 +324,10 @@ async function loadShort(h){const[id,k]=h.split('.');const r=await fetch('d/'+id
  const buf=b64u.dec((await r.text()).trim()),key=await crypto.subtle.importKey('raw',b64u.dec(k),'AES-GCM',false,['decrypt']);
  const pt=new Uint8Array(await crypto.subtle.decrypt({name:'AES-GCM',iv:buf.subarray(0,12)},key,buf.subarray(12)));
  return JSON.parse(new TextDecoder().decode(await pipe(pt,DecompressionStream)))}
-(async()=>{const h=location.hash.slice(1);if(h){try{apply(/^[\w-]{4,16}\.[\w-]{16,}$/.test(h)?await loadShort(h):await decode(h));msg('Formuläret har lästs in från länken. Fyll i det som saknas och tryck på ”Skapa delningslänk” för att skicka tillbaka.')}catch(e){msg('Kunde inte läsa uppgifterna i länken.')}}last=JSON.stringify(collect());upd()})();
+(async()=>{const h=location.hash.slice(1);if(h){try{apply(/^[\w-]{4,16}\.[\w-]{16,}$/.test(h)?await loadShort(h):await decode(h));msg('Formuläret har lästs in från länken. Fyll i det som saknas och tryck på ”Skapa delningslänk” för att skicka tillbaka.')}catch(e){msg('Kunde inte läsa uppgifterna i länken.')}}let saved=null;try{saved=localStorage.getItem(SKEY)}catch(e){}
+ if(saved){try{apply(JSON.parse(saved));msg('Dina sparade ändringar är återställda.')}catch(e){}}
+ last=JSON.stringify(collect());upd()})();
+window.addEventListener('pagehide',()=>{clearTimeout(tmr);snap()});
 </script>
 </body>
 </html>
