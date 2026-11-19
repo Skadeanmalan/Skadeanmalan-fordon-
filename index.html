@@ -31,7 +31,9 @@ input[type=text]:placeholder-shown,textarea:placeholder-shown{background:#f4f8f3
 input[type=checkbox]{width:17px;height:17px;accent-color:var(--g);margin:0}
 .g4{grid-template-columns:1.1fr 1fr 1.2fr 1fr 1fr}
 .row{display:flex;gap:6px;align-items:center}
-.row>span{font-size:12px;white-space:nowrap;min-width:92px}
+.row>span{font-size:12px;flex:0 0 auto;max-width:48%;min-width:92px;overflow-wrap:anywhere}
+.row>input{flex:1 1 0;min-width:0}
+.row>.yn{flex:0 0 auto}
 .three{display:grid;grid-template-columns:1fr 1.05fr 1fr;border:1px solid var(--line)}
 .col{min-width:0}
 .col .c{border-right:0}
