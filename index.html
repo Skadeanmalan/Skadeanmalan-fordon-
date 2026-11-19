@@ -139,7 +139,7 @@ input[type=checkbox]{width:17px;height:17px;accent-color:var(--g);margin:0}
   <div class="tools">
    <button data-col="#111" class="on">Svart</button><button data-col="#2a6fd1">Blå</button><button data-col="#d12a2a">Röd</button>
    <button id="addA">+ A</button><button id="addB">+ B</button>
-   <button id="undoS">Ångra</button><button id="clrS">Rensa</button>
+   <button id="undoS">Ångra</button><button id="clrS">Rensa</button><button id="origS">Hämta skissen</button>
   </div>
   <canvas id="sketch" class="pad sketch" width="800" height="560"></canvas>
  </div>
@@ -276,6 +276,7 @@ function makePad(id,opt={}){
 const sk=makePad('sketch',{w:4});['sigA','sigB','sigF'].forEach(id=>makePad(id,{w:3}));
 document.querySelectorAll('[data-col]').forEach(b=>b.onclick=()=>{sk.color=b.dataset.col;document.querySelectorAll('[data-col]').forEach(x=>x.classList.toggle('on',x===b))});
 ['A','B'].forEach(L=>{const b=document.getElementById('add'+L);b.onclick=()=>{sk.place=L;b.classList.add('on')}});
+document.getElementById('origS').onclick=()=>{let src={};try{src=JSON.parse(SRC)}catch(e){}const o=(src.d&&src.d.sketch)||[];if(!o.length){msg('Länken innehåller ingen skiss.');return}sk.strokes=JSON.parse(JSON.stringify(o));sk.render();snap()};
 document.getElementById('undoS').onclick=()=>{sk.strokes.pop();sk.render();snap()};
 document.getElementById('clrS').onclick=()=>{if(confirmish('Rensa skissen?')){sk.strokes=[];sk.render();snap()}};
 document.querySelectorAll('[data-clr]').forEach(b=>b.onclick=()=>{const P=pads[b.dataset.clr];P.strokes=[];P.render();snap()});
