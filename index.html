@@ -57,17 +57,29 @@ input[type=checkbox]{width:17px;height:17px;accent-color:var(--g);margin:0}
 .sign{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line)}
 .sign>div{padding:4px 6px}.sign>div+div{border-left:1px solid var(--line)}
 .who{font-size:11px;color:var(--g);font-weight:600}
-@media (max-width:720px){
- .page{padding:14px 10px;margin:0}
- h1{font-size:21px}
- .g4,.grid{grid-template-columns:1fr 1fr!important}
- .g4 .c[style*=span]{grid-column:span 2!important}
- .three{grid-template-columns:1fr}
- .mid{border:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
- .dmg,.sign,.wit{grid-template-columns:1fr}
- .wit>.grid+.grid{border-left:1px solid var(--line);margin-top:8px}
- .sign>div+div{border-left:0;border-top:1px solid var(--line)}
+@media screen and (max-width:720px){
+ body:not(.preview) .page{padding:14px 10px;margin:0}
+ body:not(.preview) h1{font-size:21px}
+ body:not(.preview) .g4,body:not(.preview) .grid{grid-template-columns:1fr 1fr!important}
+ body:not(.preview) .g4 .c[style*=span]{grid-column:span 2!important}
+ body:not(.preview) .three{grid-template-columns:1fr}
+ body:not(.preview) .mid{border:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+ body:not(.preview) .dmg,body:not(.preview) .sign,body:not(.preview) .wit{grid-template-columns:1fr}
+ body:not(.preview) .wit>.grid+.grid{border-left:1px solid var(--line);margin-top:8px}
+ body:not(.preview) .sign>div+div{border-left:0;border-top:1px solid var(--line)}
 }
+body.preview{background:#8a8f86}
+body.preview .bar>*{display:none}
+body.preview .bar>.pv{display:inline-block}
+body.preview .page{width:794px;max-width:none;padding:38px;margin:12px auto;font-size:10.5px;pointer-events:none;box-shadow:0 2px 12px rgba(0,0,0,.35)}
+body.preview .tools,body.preview .noprint{display:none!important}
+body.preview input[type=text],body.preview textarea{background:none!important;padding:0 2px}
+body.preview textarea{resize:none;overflow:hidden}
+body.preview .pad{border:0}
+body.preview .om{min-height:24px;padding:2px}
+body.preview .pb{margin-top:76px;position:relative}
+body.preview .pb::before{content:"Sida 2";position:absolute;left:-38px;right:-38px;top:-52px;border-top:14px solid #8a8f86;text-align:center;font:600 11px system-ui;color:#fff;padding-top:0;line-height:0}
+.bar>.pv{display:none}
 @media print{
  @page{size:A4;margin:10mm}
  body{background:#fff;font-size:10.5px}
@@ -86,7 +98,10 @@ input[type=checkbox]{width:17px;height:17px;accent-color:var(--g);margin:0}
  <button id="undo" title="Ångra" disabled>↶ Ångra</button>
  <button id="redo" title="Gör om" disabled>↷</button>
  <button class="primary" id="share">🔗 Skapa delningslänk</button>
+ <button id="preview">👁 Förhandsvisa</button>
  <button id="print">🖨 Skriv ut / spara PDF</button>
+ <button class="pv" id="pvclose">✕ Stäng förhandsvisning</button>
+ <button class="pv primary" id="pvprint">🖨 Skriv ut / spara PDF</button>
  <button id="reset">Töm formuläret</button>
  <span class="msg" id="msg">Ändringar sparas automatiskt på den här enheten.</span>
 </div>
@@ -233,7 +248,7 @@ document.querySelectorAll('[data-side]').forEach(col=>{
   else if(r[0]==='sub2')h+=`<div class="sub" style="border-top:0;padding-top:0">${r[1]}</div>`;
   else if(r[0]==='note')h+=`<div class="c small">${r[1]}</div>`;
   else if(r[0]==='yn')h+=`<div class="c row"><span>${r[1]}</span><div class="yn" data-yn="${s}_${r[2]}"></div></div>`;
-  else if(r[0]==='regslap')h+=`<div class="c row"><span>Reg.nr</span><input type="text" data-k="${s}_reg"><span style="min-width:0">Ev. släp</span><input type="text" data-k="${s}_slap"></div>`;
+  else if(r[0]==='regslap')h+=`<div class="c row"><span>Reg.nr</span><input type="text" data-k="${s}_reg"><span style="min-width:0">Ev. släp</span><input type="text" data-k="${s}_slap" style="flex:0 0 22%"></div>`;
   else h+=`<div class="c row"><span>${r[0]}</span><input type="text" data-k="${s}_${r[1]}"></div>`;
  }
  col.innerHTML=h;col.querySelectorAll('[data-yn]').forEach(yn);
@@ -303,6 +318,12 @@ document.getElementById('share').onclick=async()=>{
  catch(e){prompt('Kopiera länken:',url)}
 };
 document.getElementById('print').onclick=()=>{fit();print()};
+const pg=document.querySelector('.page');
+function pvZoom(){pg.style.zoom=document.body.classList.contains('preview')?Math.min(1,(innerWidth-12)/870):''}
+document.getElementById('preview').onclick=()=>{document.body.classList.add('preview');fit();pvZoom();scrollTo(0,0)};
+document.getElementById('pvclose').onclick=()=>{document.body.classList.remove('preview');pvZoom();fit()};
+document.getElementById('pvprint').onclick=()=>{fit();print()};
+addEventListener('resize',pvZoom);
 document.getElementById('reset').onclick=()=>{if(confirmish('Töm alla fält?')){apply({});snap();history.replaceState(null,'',location.href.split('#')[0])}};
 
 function fit(){document.querySelectorAll('textarea').forEach(t=>{t.style.height='auto';t.style.height=t.scrollHeight+2+'px'})}
