@@ -76,8 +76,13 @@ body.preview .tools,body.preview .noprint{display:none!important}
 body.preview input[type=text],body.preview textarea{background:none!important;padding:0 2px}
 body.preview textarea{resize:none;overflow:hidden}
 body.preview .pad{border:0}
-body.preview .om{min-height:24px;padding:2px}
-body.preview .pb{margin-top:76px;position:relative}
+body.preview .om{min-height:20px;padding:1px 2px}
+body.preview .page>*{zoom:.66}
+body.preview .sign .pad{height:70px;width:auto;max-width:100%}
+body.preview input[type=text],body.preview textarea{font-size:12.5px}
+body.preview h2{margin:10px 0 2px}
+body.preview header{padding-bottom:6px;margin-bottom:8px}
+body.preview .pb{margin-top:106px;position:relative}
 body.preview .pb::before{content:"Sida 2";position:absolute;left:-38px;right:-38px;top:-52px;border-top:14px solid #8a8f86;text-align:center;font:600 11px system-ui;color:#fff;padding-top:0;line-height:0}
 .bar>.pv{display:none}
 @media print{
@@ -89,7 +94,12 @@ body.preview .pb::before{content:"Sida 2";position:absolute;left:-38px;right:-38
  textarea{resize:none;overflow:hidden}
  .pad{border:0}
  .pb{break-before:page}
- .om{min-height:24px;padding:2px}
+ .om{min-height:20px;padding:1px 2px}
+ .page>*{zoom:.66}
+ .sign .pad{height:70px;width:auto;max-width:100%}
+ input[type=text],textarea{font-size:12.5px}
+ h2{margin:10px 0 2px}
+ header{padding-bottom:6px;margin-bottom:8px}
 }
 </style>
 </head>
