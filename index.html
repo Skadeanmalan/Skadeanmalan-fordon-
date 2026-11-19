@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Skadeanmälan motorfordon</title>
+<style>
+:root{--g:#3f9a3c;--line:#9a9a9a;--ink:#111;--muted:#555;--hl:#fff8d6}
+*{box-sizing:border-box}
+body{margin:0;background:#eceee9;font:14px/1.35 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink)}
+.bar{position:sticky;top:0;z-index:10;background:#fff;border-bottom:1px solid #ccc;padding:8px 12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.bar button{font:inherit;padding:8px 12px;border-radius:8px;border:1px solid #bbb;background:#f7f7f7;cursor:pointer}
+.bar button:disabled{opacity:.4;cursor:default}
+.bar #undo{font-weight:600}
+.bar button.primary{background:var(--g);border-color:var(--g);color:#fff;font-weight:600}
+.bar .msg{font-size:13px;color:var(--muted);flex:1 1 200px}
+.page{max-width:900px;margin:14px auto;background:#fff;padding:28px 30px;box-shadow:0 1px 4px rgba(0,0,0,.15)}
+header{display:flex;justify-content:space-between;align-items:center;border-bottom:8px solid var(--g);padding-bottom:12px;margin-bottom:14px}
+h1{font:800 26px/1.05 "Arial Narrow",Arial,sans-serif;letter-spacing:.5px;margin:0;text-transform:uppercase}
+.to{font-size:13px;color:var(--muted);text-align:right}
+h2{color:var(--g);font:800 15px "Arial Narrow",Arial,sans-serif;text-transform:uppercase;margin:18px 0 3px}
+.grid{display:grid;border-top:1px solid var(--line);border-left:1px solid var(--line)}
+.c{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:3px 6px 4px;min-width:0}
+.c>label,.lab{display:block;font-size:12px;color:#333}
+input[type=text],textarea{width:100%;border:0;background:var(--hl);font:inherit;padding:3px 4px;border-radius:3px;color:#000}
+textarea{resize:vertical;min-height:60px}
+input[type=text]:placeholder-shown,textarea:placeholder-shown{background:#f4f8f3}
+.yn{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:2px;font-size:13px}
+.yn label{display:flex;align-items:center;gap:4px}
+input[type=checkbox]{width:17px;height:17px;accent-color:var(--g);margin:0}
+.g4{grid-template-columns:1.1fr 1fr 1.2fr 1fr 1fr}
+.row{display:flex;gap:6px;align-items:center}
+.row>span{font-size:12px;white-space:nowrap;min-width:92px}
+.three{display:grid;grid-template-columns:1fr 1.05fr 1fr;border:1px solid var(--line)}
+.col{min-width:0}
+.col .c{border-right:0}
+.mid{border-left:1px solid var(--line);border-right:1px solid var(--line)}
+.om{display:grid;grid-template-columns:26px 1fr 26px;align-items:center;border-bottom:1px solid #e3e3e3;padding:4px 2px;text-align:center;font-size:12.5px;min-height:31px}
+.om input{justify-self:center}
+.head{font-weight:700;background:#f2f6f1}
+.sub{font-weight:700;font-size:13px;padding:4px 6px;border-bottom:1px solid var(--line);background:#f2f6f1}
+.cars{display:grid;grid-template-columns:1fr 1fr}
+.car{text-align:center;padding:4px}
+.car svg{width:100%;max-width:150px;height:auto;cursor:crosshair;touch-action:none}
+.small{font-size:11.5px;color:var(--muted)}
+.lnk{font-size:12px;background:none;border:0;color:var(--g);text-decoration:underline;cursor:pointer;padding:0}
+.pad{width:100%;height:auto;display:block;touch-action:none;background:#fff;border:1px dashed #bbb;border-radius:4px;cursor:crosshair}
+.sketch{background-image:linear-gradient(#eee 1px,transparent 1px),linear-gradient(90deg,#eee 1px,transparent 1px);background-size:20px 20px}
+.tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:4px 0}
+.tools button{font-size:12px;padding:3px 8px;border:1px solid #bbb;border-radius:6px;background:#fafafa;cursor:pointer}
+.tools button.on{background:var(--g);color:#fff;border-color:var(--g)}
+.dmg{display:grid;grid-template-columns:1fr 1.25fr;border:1px solid var(--line)}
+.wit{display:grid;grid-template-columns:1fr 1fr}.wit>.grid+.grid{border-left:0}
+.sign{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line)}
+.sign>div{padding:4px 6px}.sign>div+div{border-left:1px solid var(--line)}
+.who{font-size:11px;color:var(--g);font-weight:600}
+@media (max-width:720px){
+ .page{padding:14px 10px;margin:0}
+ h1{font-size:21px}
+ .g4,.grid{grid-template-columns:1fr 1fr!important}
+ .g4 .c[style*=span]{grid-column:span 2!important}
+ .three{grid-template-columns:1fr}
+ .mid{border:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+ .dmg,.sign,.wit{grid-template-columns:1fr}
+ .wit>.grid+.grid{border-left:1px solid var(--line);margin-top:8px}
+ .sign>div+div{border-left:0;border-top:1px solid var(--line)}
+}
+@media print{
+ @page{size:A4;margin:10mm}
+ body{background:#fff;font-size:10.5px}
+ .bar,.tools,.noprint{display:none!important}
+ .page{box-shadow:none;margin:0;max-width:none;padding:0}
+ input[type=text],textarea{background:none!important;padding:0 2px}
+ textarea{resize:none;overflow:hidden}
+ .pad{border:0}
+ .pb{break-before:page}
+ .om{min-height:24px;padding:2px}
+}
+</style>
+</head>
+<body>
+<div class="bar">
+ <button id="undo" title="Ångra" disabled>↶ Ångra</button>
+ <button id="redo" title="Gör om" disabled>↷</button>
+ <button class="primary" id="share">🔗 Skapa delningslänk</button>
+ <button id="print">🖨 Skriv ut / spara PDF</button>
+ <button id="reset">Töm formuläret</button>
+ <span class="msg" id="msg">Uppgifterna sparas bara i delningslänken – inget lagras på servern.</span>
+</div>
+
+<div class="page">
+<header>
+ <h1>Skadeanmälan<br>motorfordon</h1>
+ <div class="to">Till: Dina Försäkringar<br>motorskador@dina.se</div>
+</header>
+
+<div class="grid g4">
+ <div class="c"><label>Skadedatum</label><input type="text" data-k="datum"></div>
+ <div class="c"><label>Tidpunkt</label><input type="text" data-k="tid"></div>
+ <div class="c" style="grid-column:span 3"><label>Skadeplats (län, ort, gata, vägnr etc)</label><textarea data-k="plats" rows="2" style="min-height:0"></textarea></div>
+
+ <div class="c"><label>Känner polisen till händelsen?</label><div class="yn" data-yn="polis"></div></div>
+ <div class="c"><label>Om "ja" polisen i</label><input type="text" data-k="polisort"></div>
+ <div class="c"><label>Har utandningsprov tagits?</label><div class="yn" data-yn="utand"></div></div>
+ <div class="c"><label>Har blodprov tagits?</label><div class="yn" data-yn="blod"></div></div>
+ <div class="c"><label>Personskador?</label><div class="yn" data-yn="pskada"></div></div>
+
+ <div class="c"><label>Har bärgningsföretag anlitats?</label><div class="yn" data-yn="barg"></div></div>
+ <div class="c" style="grid-column:span 4"><label>Om "ja" företagets namn, adress och telefonnummer</label><input type="text" data-k="bargf"></div>
+ <div class="c"><label>Är ditt fordon på verkstad?</label><div class="yn" data-yn="verk"></div></div>
+ <div class="c" style="grid-column:span 4"><label>Om "ja" verkstadens namn, adress och telefonnummer</label><input type="text" data-k="verkf"></div>
+</div>
+
+<h2>Fordonsägare och omständigheter</h2>
+<div class="three">
+ <div class="col" data-side="a"></div>
+ <div class="col mid" id="om"></div>
+ <div class="col" data-side="b"></div>
+</div>
+
+<h2>Skador och händelseförlopp</h2>
+<div class="dmg">
+ <div style="border-right:1px solid var(--line)">
+  <div class="sub" style="font-weight:400;font-size:12px">Markera med en pil var på fordonet kollisionen inträffade <span class="small noprint">(tryck på bilen – tryck på en pil för att ta bort den)</span></div>
+  <div class="cars">
+   <div class="car" style="border-right:1px solid var(--line)"><div class="lab">Fordon A</div><svg data-car="a"></svg></div>
+   <div class="car"><div class="lab">Fordon B</div><svg data-car="b"></svg></div>
+  </div>
+  <div class="sub" style="font-weight:400;font-size:12px;text-align:center;border-top:1px solid var(--line)">Skriv ned vilka skador fordonet fick</div>
+  <div class="cars">
+   <div class="c" style="border-bottom:0"><label>Fordon A</label><textarea data-k="skadaA" rows="5"></textarea></div>
+   <div class="c" style="border-bottom:0;border-right:0"><label>Fordon B</label><textarea data-k="skadaB" rows="5"></textarea></div>
+  </div>
+ </div>
+ <div class="c" style="border:0">
+  <label>Skissa upp händelseförloppet. Rita in vägar, vägmärken, var fordonen stod (markera fordon A + B) och åt vilket håll de åkte.</label>
+  <div class="tools">
+   <button data-col="#111" class="on">Svart</button><button data-col="#2a6fd1">Blå</button><button data-col="#d12a2a">Röd</button>
+   <button id="addA">+ A</button><button id="addB">+ B</button>
+   <button id="undoS">Ångra</button><button id="clrS">Rensa</button>
+  </div>
+  <canvas id="sketch" class="pad sketch" width="800" height="560"></canvas>
+ </div>
+</div>
+
+<h2>Underskrifter</h2>
+<div class="sign">
+ <div><div class="lab">Underskrift förare fordon A <button class="lnk noprint" data-clr="sigA">rensa</button></div><canvas class="pad" id="sigA" width="600" height="150"></canvas></div>
+ <div><div class="lab">Underskrift förare fordon B <button class="lnk noprint" data-clr="sigB">rensa</button></div><canvas class="pad" id="sigB" width="600" height="150"></canvas></div>
+</div>
+
+<h2 class="pb">Beskriv händelseförloppet</h2>
+<div class="grid" style="grid-template-columns:1fr">
+ <div class="c"><textarea data-k="forlopp" rows="9"></textarea></div>
+ <div class="c"><label>Vem anser du vållat olyckan och varför?</label><textarea data-k="vallat" rows="3"></textarea></div>
+</div>
+
+<h2>Personskador</h2>
+<div class="grid" style="grid-template-columns:1fr 1fr">
+ <div class="c"><label>Skadades någon i det egna fordonet?</label><input type="text" data-k="pegen"></div>
+ <div class="c"><label>Skadades någon annan person (t ex fotgängare, cyklist)?</label><input type="text" data-k="pannan"></div>
+ <div class="c" style="grid-column:span 2"><label>Om "ja" ange namn, adress, telefonnummer och e-post till den/de skadade</label><textarea data-k="pkontakt" rows="2"></textarea></div>
+ <div class="c" style="grid-column:span 2"><label>Beskriv skadan/skadorna (t ex brutit benet)</label><textarea data-k="pbeskr" rows="2"></textarea></div>
+</div>
+
+<h2>Materiella skador, t ex annat fordon, staket, lyktstolpe</h2>
+<div class="grid" style="grid-template-columns:1.3fr 1fr 1.3fr">
+ <div class="c"><label>Namn, adress och telefon</label><textarea data-k="mnamn" rows="2"></textarea></div>
+ <div class="c"><label>Personnr / Org.nr</label><input type="text" data-k="mnr"></div>
+ <div class="c"><label>Skadans art och omfattning</label><textarea data-k="mart" rows="2"></textarea></div>
+</div>
+
+<h2>Kompletterande uppgifter</h2>
+<div class="grid" style="grid-template-columns:repeat(5,1fr)">
+ <div class="c"><label>Ditt fordons hastighet då faran upptäcktes</label><input type="text" data-k="h1"></div>
+ <div class="c"><label>Ditt fordons hastighet i kollisionsögonblicket</label><input type="text" data-k="h2"></div>
+ <div class="c"><label>Gällande hastighets&shy;begränsning</label><input type="text" data-k="hgr"></div>
+ <div class="c"><label>Avstånd till höger vägkant vid kollisionsplatsen</label><input type="text" data-k="avst"></div>
+ <div class="c"><label>Vägens bredd i meter</label><input type="text" data-k="bredd"></div>
+ <div class="c" style="grid-column:span 2"><label>Ungefärligt avstånd från ditt fordon till kollisionsplatsen när motparten upptäcktes</label><input type="text" data-k="avst2"></div>
+ <div class="c"><label>Väglag (vått, torrt, snö, is)</label><input type="text" data-k="vaglag"></div>
+ <div class="c"><label>Ljusförhållande (dagsljus, halvdager, mörker)</label><input type="text" data-k="ljus"></div>
+ <div class="c"><label>Gatu- eller vägbelysning (tänd, släckt, saknas)</label><input type="text" data-k="belys"></div>
+ <div class="c"><label>Eget fordons belysning (halvljus, varselljus)</label><input type="text" data-k="egbel"></div>
+ <div class="c"><label>Antal personer i eget fordon</label><input type="text" data-k="antal"></div>
+ <div class="c"><label>Finns trafiksignaler?</label><div class="yn" data-yn="signal"></div></div>
+ <div class="c"><label>Om ja – i funktion?</label><div class="yn" data-yn="sigfunk"></div></div>
+ <div class="c"><label>Har skadan uppkommit vid tävling?</label><div class="yn" data-yn="tavl"></div></div>
+</div>
+
+<h2>Vittnen</h2>
+<div class="wit">
+ <div class="grid" style="grid-template-columns:1.3fr 1fr">
+  <div class="c" style="grid-column:span 2"><label><b>Vittne 1</b>, namn</label><input type="text" data-k="v1n"></div>
+  <div class="c"><label>Gatuadress</label><input type="text" data-k="v1a"></div>
+  <div class="c"><label>Postnr och Ort</label><input type="text" data-k="v1p"></div>
+  <div class="c" style="grid-column:span 2"><label>Telefon</label><input type="text" data-k="v1t"></div>
+ </div>
+ <div class="grid" style="grid-template-columns:1.3fr 1fr">
+  <div class="c" style="grid-column:span 2"><label><b>Vittne 2</b>, namn</label><input type="text" data-k="v2n"></div>
+  <div class="c"><label>Gatuadress</label><input type="text" data-k="v2a"></div>
+  <div class="c"><label>Postnr och Ort</label><input type="text" data-k="v2p"></div>
+  <div class="c" style="grid-column:span 2"><label>Telefon</label><input type="text" data-k="v2t"></div>
+ </div>
+</div>
+
+<h2>Utbetalning</h2>
+<div class="grid" style="grid-template-columns:1fr 1fr">
+ <div class="c"><label>Utbetalning önskas till</label>
+  <div class="yn"><label><input type="checkbox" data-k="ub_bank" data-grp="ub">Bankkonto</label><label><input type="checkbox" data-k="ub_plus" data-grp="ub">Plusgiro</label><label><input type="checkbox" data-k="ub_bg" data-grp="ub">Bankgiro</label></div></div>
+ <div class="c"><label>Nummer – Vid bankkonto ange även clearingnummer</label><input type="text" data-k="ubnr"></div>
+</div>
+
+<h2>Underskrift försäkringstagare</h2>
+<div class="grid" style="grid-template-columns:1fr 2.5fr">
+ <div class="c"><label>Datum</label><input type="text" data-k="ftdatum"></div>
+ <div class="c"><label>Namn <button class="lnk noprint" data-clr="sigF">rensa</button></label><input type="text" data-k="ftnamn"><canvas class="pad" id="sigF" width="700" height="130"></canvas></div>
+</div>
+<p class="small">Underskriften ger även Dina Försäkringar fullmakt att beställa eventuell polisrapport.<br><b>Skadeanmälan skickas in via e-post:</b> motorskador@dina.se</p>
+</div>
+
+<script>
+// ---------- bygg upprepade delar ----------
+function yn(el){const k=el.dataset.yn;el.innerHTML=`<label><input type="checkbox" data-k="${k}_ja" data-grp="${k}">Ja</label><label><input type="checkbox" data-k="${k}_nej" data-grp="${k}">Nej</label>`}
+document.querySelectorAll('[data-yn]').forEach(yn);
+
+const sideRows=[["sub","Fordon %S"],["sub2","Ägare"],["Namn","agnamn"],["Personnr","agpnr"],["Gatuadress","agadr"],["Postnr","agpost"],["Postort och land","agort"],["Telefon","agtel"],["E-post","agmail"],["yn","Redovisar du moms","moms"],["sub","Fordon"],["Fabrikat","fabrikat"],["regslap"],["Mätarställning","matare"],["sub","Förare om annan än ägaren"],["Namn","fnamn"],["Personnr","fpnr"],["Gatuadress","fadr"],["Postnr","fpost"],["Postort och land","fort"],["Telefon","ftel"],["Körkortsbehörighet (A, B etc)","kkb"],["yn","Gällande svenskt körkort*","kk"],["note","* Bifoga kopia på utländskt körkort"]];
+document.querySelectorAll('[data-side]').forEach(col=>{
+ const s=col.dataset.side,S=s.toUpperCase();let h='';
+ for(const r of sideRows){
+  if(r[0]==='sub')h+=`<div class="sub">${r[1].replace('%S',S)}</div>`;
+  else if(r[0]==='sub2')h+=`<div class="sub" style="border-top:0;padding-top:0">${r[1]}</div>`;
+  else if(r[0]==='note')h+=`<div class="c small">${r[1]}</div>`;
+  else if(r[0]==='yn')h+=`<div class="c row"><span>${r[1]}</span><div class="yn" data-yn="${s}_${r[2]}"></div></div>`;
+  else if(r[0]==='regslap')h+=`<div class="c row"><span>Reg.nr</span><input type="text" data-k="${s}_reg"><span style="min-width:0">Ev. släp</span><input type="text" data-k="${s}_slap"></div>`;
+  else h+=`<div class="c row"><span>${r[0]}</span><input type="text" data-k="${s}_${r[1]}"></div>`;
+ }
+ col.innerHTML=h;col.querySelectorAll('[data-yn]').forEach(yn);
+});
+
+const oms=["Stod parkerad / stilla","Lämnade parkeringsplats / öppnade dörr","Parkerade vid trottoar / vägkant","Körde ut från parkeringsområde, tomt eller liknande","Körde in till parkeringsområde, tomt eller liknande","Körde in i rondell","Körde i rondell","Körde på bakifrån vid körning i samma fil och åt samma håll","Körde åt samma håll men i annan fil","Bytte fil","Körde om","Svängde till höger","Svängde till vänster","Backade","Inkräktade på vägbanan reserverad för mötande trafik","Kom från höger (i korsning)","Lämnade inte företräde enligt vägmärke/trafiksignal"];
+document.getElementById('om').innerHTML=`<div class="om head"><span>A</span><span>Omständigheter</span><span>B</span></div>`+oms.map((t,i)=>`<div class="om"><input type="checkbox" data-k="omA${i}" aria-label="A: ${t}"><span>${t}</span><input type="checkbox" data-k="omB${i}" aria-label="B: ${t}"></div>`).join('');
+
+// Ja/Nej fungerar som radioknappar
+document.addEventListener('change',e=>{const t=e.target;if(t.dataset.grp&&t.checked)document.querySelectorAll(`[data-grp="${t.dataset.grp}"]`).forEach(o=>{if(o!==t)o.checked=false});});
+
+// ---------- bilar med pilar ----------
+const carSVG=`<g fill="#3f9a3c"><rect x="30" y="10" width="80" height="200" rx="32"/></g><g fill="#fff"><path d="M42 62 Q70 46 98 62 L92 88 Q70 80 48 88Z"/><path d="M48 160 Q70 168 92 160 L96 182 Q70 192 44 182Z"/><rect x="38" y="94" width="6" height="56" rx="3"/><rect x="96" y="94" width="6" height="56" rx="3"/></g><rect x="22" y="70" width="10" height="6" fill="#3f9a3c"/><rect x="108" y="70" width="10" height="6" fill="#3f9a3c"/><text x="70" y="8" font-size="8" text-anchor="middle" fill="#888">fram</text>`;
+const marks={a:[],b:[]};
+function drawCar(svg){const s=svg.dataset.car;svg.setAttribute('viewBox','0 -4 140 222');
+ svg.innerHTML=carSVG+marks[s].map((m,i)=>{const cx=70,cy=110,dx=m[0]-cx,dy=m[1]-cy,l=Math.hypot(dx,dy)||1,ux=dx/l,uy=dy/l,sx=m[0]+ux*34,sy=m[1]+uy*34;
+  return `<g data-i="${i}" style="cursor:pointer"><line x1="${sx}" y1="${sy}" x2="${m[0]+ux*6}" y2="${m[1]+uy*6}" stroke="#d12a2a" stroke-width="4"/><polygon points="${m[0]},${m[1]} ${m[0]+ux*12-uy*7},${m[1]+uy*12+ux*7} ${m[0]+ux*12+uy*7},${m[1]+uy*12-ux*7}" fill="#d12a2a"/><circle cx="${sx}" cy="${sy}" r="9" fill="transparent"/></g>`}).join('');}
+document.querySelectorAll('[data-car]').forEach(svg=>{drawCar(svg);svg.addEventListener('pointerdown',e=>{
+ const g=e.target.closest('g[data-i]'),s=svg.dataset.car;
+ if(g){marks[s].splice(+g.dataset.i,1)}else{const p=svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;const q=p.matrixTransform(svg.getScreenCTM().inverse());marks[s].push([Math.round(q.x),Math.round(q.y)])}
+ drawCar(svg);snap();});});
+
+// ---------- ritytor ----------
+const pads={};
+function makePad(id,opt={}){
+ const cv=document.getElementById(id),ctx=cv.getContext('2d');const P={cv,ctx,strokes:[],color:'#111',w:opt.w||3};
+ P.render=()=>{ctx.clearRect(0,0,cv.width,cv.height);ctx.lineCap=ctx.lineJoin='round';
+  for(const s of P.strokes){if(s.t){ctx.font='bold 34px system-ui,sans-serif';ctx.fillStyle=s.c;ctx.strokeStyle=s.c;ctx.lineWidth=3;ctx.strokeRect(s.x-22,s.y-30,44,52);ctx.textAlign='center';ctx.fillText(s.t,s.x,s.y+10);continue}
+   ctx.strokeStyle=s.c;ctx.lineWidth=s.w||P.w;ctx.beginPath();const p=s.p;ctx.moveTo(p[0],p[1]);if(p.length===2)ctx.lineTo(p[0]+.1,p[1]);for(let i=2;i<p.length;i+=2)ctx.lineTo(p[i],p[i+1]);ctx.stroke();}};
+ const pos=e=>{const r=cv.getBoundingClientRect();return[Math.round((e.clientX-r.left)*cv.width/r.width),Math.round((e.clientY-r.top)*cv.height/r.height)]};
+ let cur=null;
+ cv.addEventListener('pointerdown',e=>{e.preventDefault();const p=pos(e);
+  if(P.place){P.strokes.push({t:P.place,c:P.color,x:p[0],y:p[1]});P.place=null;document.querySelectorAll('#addA,#addB').forEach(b=>b.classList.remove('on'));P.render();snap();return}
+  cur={c:P.color,p:p};P.strokes.push(cur);cv.setPointerCapture(e.pointerId);P.render();});
+ cv.addEventListener('pointermove',e=>{if(!cur)return;const p=pos(e),q=cur.p;if(Math.abs(p[0]-q[q.length-2])+Math.abs(p[1]-q[q.length-1])>2){q.push(p[0],p[1]);P.render()}});
+ const end=()=>{if(cur){cur=null;snap()}};cv.addEventListener('pointerup',end);cv.addEventListener('pointercancel',end);
+ pads[id]=P;return P;
+}
+const sk=makePad('sketch',{w:4});['sigA','sigB','sigF'].forEach(id=>makePad(id,{w:3}));
+document.querySelectorAll('[data-col]').forEach(b=>b.onclick=()=>{sk.color=b.dataset.col;document.querySelectorAll('[data-col]').forEach(x=>x.classList.toggle('on',x===b))});
+['A','B'].forEach(L=>{const b=document.getElementById('add'+L);b.onclick=()=>{sk.place=L;b.classList.add('on')}});
+document.getElementById('undoS').onclick=()=>{sk.strokes.pop();sk.render();snap()};
+document.getElementById('clrS').onclick=()=>{if(confirmish('Rensa skissen?')){sk.strokes=[];sk.render();snap()}};
+document.querySelectorAll('[data-clr]').forEach(b=>b.onclick=()=>{const P=pads[b.dataset.clr];P.strokes=[];P.render();snap()});
+function confirmish(q){try{return confirm(q)}catch(e){return true}}
+
+// ---------- spara/läsa via länk ----------
+function collect(){const f={};document.querySelectorAll('[data-k]').forEach(el=>{const k=el.dataset.k;if(el.type==='checkbox'){if(el.checked)f[k]=1}else if(el.value.trim())f[k]=el.value});
+ const d={f,m:marks};for(const id in pads)if(pads[id].strokes.length)(d.d||(d.d={}))[id]=pads[id].strokes;return d;}
+function apply(d){d=d||{};const f=d.f||{};document.querySelectorAll('[data-k]').forEach(el=>{const v=f[el.dataset.k];if(el.type==='checkbox')el.checked=!!v;else el.value=v||''});
+ marks.a=(d.m&&d.m.a)||[];marks.b=(d.m&&d.m.b)||[];document.querySelectorAll('[data-car]').forEach(drawCar);
+ for(const id in pads){pads[id].strokes=(d.d&&d.d[id])||[];pads[id].render()}fit();}
+const b64u={enc:u=>{let s='';for(let i=0;i<u.length;i+=0x8000)s+=String.fromCharCode.apply(null,u.subarray(i,i+0x8000));return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')},
+ dec:s=>{s=s.replace(/-/g,'+').replace(/_/g,'/');const b=atob(s),u=new Uint8Array(b.length);for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u}};
+async function pipe(u,T){const s=new Blob([u]).stream().pipeThrough(new T('deflate-raw'));return new Uint8Array(await new Response(s).arrayBuffer())}
+async function encode(d){const u=new TextEncoder().encode(JSON.stringify(d));if(window.CompressionStream)return 'z'+b64u.enc(await pipe(u,CompressionStream));return 'j'+b64u.enc(u)}
+async function decode(h){const t=h[0],u=b64u.dec(h.slice(1));return JSON.parse(new TextDecoder().decode(t==='z'?await pipe(u,DecompressionStream):u))}
+const msg=t=>document.getElementById('msg').textContent=t;
+
+document.getElementById('share').onclick=async()=>{
+ const url=location.href.split('#')[0]+'#'+await encode(collect());
+ history.replaceState(null,'',url);
+ try{if(navigator.share){await navigator.share({title:'Skadeanmälan motorfordon',url});msg('Länken delad. Skicka bara till de inblandade – den innehåller personuppgifter.');return}}catch(e){if(e.name==='AbortError')return}
+ try{await navigator.clipboard.writeText(url);msg('Länken är kopierad! Skicka den bara till de inblandade – den innehåller personuppgifter.')}
+ catch(e){prompt('Kopiera länken:',url)}
+};
+document.getElementById('print').onclick=()=>{fit();print()};
+document.getElementById('reset').onclick=()=>{if(confirmish('Töm alla fält?')){apply({});snap();history.replaceState(null,'',location.href.split('#')[0])}};
+
+function fit(){document.querySelectorAll('textarea').forEach(t=>{t.style.height='auto';t.style.height=t.scrollHeight+2+'px'})}
+document.addEventListener('input',e=>{if(e.target.tagName==='TEXTAREA')fit();clearTimeout(tmr);tmr=setTimeout(snap,500)});
+document.addEventListener('change',()=>{clearTimeout(tmr);snap()});
+
+// ---------- ångra / gör om ----------
+let hist=[],fut=[],last=null,tmr;
+const ub=document.getElementById('undo'),rb=document.getElementById('redo');
+function upd(){ub.disabled=!hist.length;rb.disabled=!fut.length}
+function snap(){if(last===null)return;const s=JSON.stringify(collect());if(s!==last){hist.push(last);if(hist.length>200)hist.shift();last=s;fut=[];upd()}}
+function undo(){clearTimeout(tmr);snap();if(!hist.length)return;fut.push(last);last=hist.pop();apply(JSON.parse(last));upd()}
+function redo(){if(!fut.length)return;hist.push(last);last=fut.pop();apply(JSON.parse(last));upd()}
+ub.onclick=undo;rb.onclick=redo;
+document.addEventListener('keydown',e=>{const t=e.target.tagName;if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'&&t!=='INPUT'&&t!=='TEXTAREA'){e.preventDefault();e.shiftKey?redo():undo()}});
+window.addEventListener('beforeprint',fit);
+
+(async()=>{const h=location.hash.slice(1);if(h){try{apply(await decode(h));msg('Formuläret har lästs in från länken. Fyll i det som saknas och tryck på ”Skapa delningslänk” för att skicka tillbaka.')}catch(e){msg('Kunde inte läsa uppgifterna i länken.')}}last=JSON.stringify(collect());upd()})();
+</script>
+</body>
+</html>
