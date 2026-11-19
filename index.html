@@ -123,10 +123,10 @@ input[type=checkbox]{width:17px;height:17px;accent-color:var(--g);margin:0}
 <h2>Skador och händelseförlopp</h2>
 <div class="dmg">
  <div style="border-right:1px solid var(--line)">
-  <div class="sub" style="font-weight:400;font-size:12px">Markera med en pil var på fordonet kollisionen inträffade <span class="small noprint">(tryck på bilen – tryck på en pil för att ta bort den)</span></div>
+  <div class="sub" style="font-weight:400;font-size:12px">Markera med en pil var på fordonet kollisionen inträffade <span class="small noprint">(tryck där bilen träffades)</span></div>
   <div class="cars">
-   <div class="car" style="border-right:1px solid var(--line)"><div class="lab">Fordon A</div><svg data-car="a"></svg></div>
-   <div class="car"><div class="lab">Fordon B</div><svg data-car="b"></svg></div>
+   <div class="car" style="border-right:1px solid var(--line)"><div class="lab">Fordon A</div><svg data-car="a"></svg><button class="lnk noprint" data-carundo="a">ta bort senaste pilen</button></div>
+   <div class="car"><div class="lab">Fordon B</div><svg data-car="b"></svg><button class="lnk noprint" data-carundo="b">ta bort senaste pilen</button></div>
   </div>
   <div class="sub" style="font-weight:400;font-size:12px;text-align:center;border-top:1px solid var(--line)">Skriv ned vilka skador fordonet fick</div>
   <div class="cars">
@@ -247,21 +247,22 @@ document.addEventListener('change',e=>{const t=e.target;if(t.dataset.grp&&t.chec
 
 // ---------- bilar med pilar ----------
 const carSVG=`<g fill="#3f9a3c"><rect x="30" y="10" width="80" height="200" rx="32"/></g><g fill="#fff"><path d="M42 62 Q70 46 98 62 L92 88 Q70 80 48 88Z"/><path d="M48 160 Q70 168 92 160 L96 182 Q70 192 44 182Z"/><rect x="38" y="94" width="6" height="56" rx="3"/><rect x="96" y="94" width="6" height="56" rx="3"/></g><rect x="22" y="70" width="10" height="6" fill="#3f9a3c"/><rect x="108" y="70" width="10" height="6" fill="#3f9a3c"/><text x="70" y="8" font-size="8" text-anchor="middle" fill="#888">fram</text>`;
-const marks={a:[],b:[]};
-function drawCar(svg){const s=svg.dataset.car;svg.setAttribute('viewBox','0 -4 140 222');
+const marks={a:[],b:[]},VB=[-36,-40,212,298];
+function drawCar(svg){const s=svg.dataset.car;svg.setAttribute('viewBox',VB.join(' '));
  svg.innerHTML=carSVG+marks[s].map((m,i)=>{const cx=70,cy=110,dx=m[0]-cx,dy=m[1]-cy,l=Math.hypot(dx,dy)||1,ux=dx/l,uy=dy/l,sx=m[0]+ux*34,sy=m[1]+uy*34;
-  return `<g data-i="${i}" style="cursor:pointer"><line x1="${sx}" y1="${sy}" x2="${m[0]+ux*6}" y2="${m[1]+uy*6}" stroke="#d12a2a" stroke-width="4"/><polygon points="${m[0]},${m[1]} ${m[0]+ux*12-uy*7},${m[1]+uy*12+ux*7} ${m[0]+ux*12+uy*7},${m[1]+uy*12-ux*7}" fill="#d12a2a"/><circle cx="${sx}" cy="${sy}" r="9" fill="transparent"/></g>`}).join('');}
+  return `<g data-i="${i}" ><line x1="${sx}" y1="${sy}" x2="${m[0]+ux*6}" y2="${m[1]+uy*6}" stroke="#d12a2a" stroke-width="4"/><polygon points="${m[0]},${m[1]} ${m[0]+ux*12-uy*7},${m[1]+uy*12+ux*7} ${m[0]+ux*12+uy*7},${m[1]+uy*12-ux*7}" fill="#d12a2a"/><circle cx="${sx}" cy="${sy}" r="9" fill="transparent"/></g>`}).join('');}
 document.querySelectorAll('[data-car]').forEach(svg=>{drawCar(svg);svg.addEventListener('pointerdown',e=>{
- const g=e.target.closest('g[data-i]'),s=svg.dataset.car;
- if(g){marks[s].splice(+g.dataset.i,1)}else{const p=svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;const q=p.matrixTransform(svg.getScreenCTM().inverse());marks[s].push([Math.round(q.x),Math.round(q.y)])}
- drawCar(svg);snap();});});
+ e.preventDefault();const s=svg.dataset.car,r=svg.getBoundingClientRect();
+ const x=VB[0]+(e.clientX-r.left)/r.width*VB[2],y=VB[1]+(e.clientY-r.top)/r.height*VB[3];
+ marks[s].push([Math.round(Math.max(0,Math.min(140,x))),Math.round(Math.max(0,Math.min(218,y)))]);drawCar(svg);snap();});});
+document.querySelectorAll('[data-carundo]').forEach(b=>b.onclick=()=>{const s=b.dataset.carundo;marks[s].pop();drawCar(document.querySelector(`svg[data-car=${s}]`));snap()});
 
 // ---------- ritytor ----------
 const pads={};
 function makePad(id,opt={}){
  const cv=document.getElementById(id),ctx=cv.getContext('2d');const P={cv,ctx,strokes:[],color:'#111',w:opt.w||3};
  P.render=()=>{ctx.clearRect(0,0,cv.width,cv.height);ctx.lineCap=ctx.lineJoin='round';
-  for(const s of P.strokes){if(s.t){ctx.font='bold 34px system-ui,sans-serif';ctx.fillStyle=s.c;ctx.strokeStyle=s.c;ctx.lineWidth=3;ctx.strokeRect(s.x-22,s.y-30,44,52);ctx.textAlign='center';ctx.fillText(s.t,s.x,s.y+10);continue}
+  for(const s of P.strokes){if(s.l){ctx.font=(s.s||20)+'px system-ui,sans-serif';ctx.fillStyle=s.c;ctx.textAlign='center';ctx.save();ctx.translate(s.x,s.y);ctx.rotate(s.r||0);ctx.fillText(s.l,0,0);ctx.restore();continue}if(s.t){ctx.font='bold 34px system-ui,sans-serif';ctx.fillStyle=s.c;ctx.strokeStyle=s.c;ctx.lineWidth=3;ctx.strokeRect(s.x-22,s.y-30,44,52);ctx.textAlign='center';ctx.fillText(s.t,s.x,s.y+10);continue}
    ctx.strokeStyle=s.c;ctx.lineWidth=s.w||P.w;ctx.beginPath();const p=s.p;ctx.moveTo(p[0],p[1]);if(p.length===2)ctx.lineTo(p[0]+.1,p[1]);for(let i=2;i<p.length;i+=2)ctx.lineTo(p[i],p[i+1]);ctx.stroke();}};
  const pos=e=>{const r=cv.getBoundingClientRect();return[Math.round((e.clientX-r.left)*cv.width/r.width),Math.round((e.clientY-r.top)*cv.height/r.height)]};
  let cur=null;
@@ -312,7 +313,13 @@ let hist=[],fut=[],last=null,tmr;
 const ub=document.getElementById('undo'),rb=document.getElementById('redo');
 function upd(){ub.disabled=!hist.length;rb.disabled=!fut.length}
 const SKEY='skadeanmalan:'+(location.hash.slice(1,40)||'tomt');
-function save(){try{localStorage.setItem(SKEY,last);msg('✓ Sparat '+new Date().toLocaleTimeString('sv-SE',{hour:'2-digit',minute:'2-digit'})+' på den här enheten')}catch(e){}}
+let SRC='{}';
+function save(){try{localStorage.setItem(SKEY,JSON.stringify({v:2,src:SRC,cur:last}));msg('✓ Sparat '+new Date().toLocaleTimeString('sv-SE',{hour:'2-digit',minute:'2-digit'})+' på den här enheten')}catch(e){}}
+function merge(o,n,c){const r=JSON.parse(JSON.stringify(n)),J=JSON.stringify;r.f=r.f||{};
+ const of=o.f||{},cf=c.f||{};for(const k of new Set([...Object.keys(of),...Object.keys(cf)]))if(J(of[k])!==J(cf[k])){if(cf[k]===undefined)delete r.f[k];else r.f[k]=cf[k]}
+ for(const s of['a','b'])if(J((o.m||{})[s]||[])!==J((c.m||{})[s]||[])){r.m=r.m||{};r.m[s]=(c.m||{})[s]||[]}
+ const od=o.d||{},cd=c.d||{};for(const k of new Set([...Object.keys(od),...Object.keys(cd)]))if(J(od[k])!==J(cd[k])){r.d=r.d||{};r.d[k]=cd[k]||[]}
+ return r}
 function snap(){if(last===null)return;const s=JSON.stringify(collect());if(s!==last){hist.push(last);if(hist.length>200)hist.shift();last=s;fut=[];upd();save()}}
 function undo(){clearTimeout(tmr);snap();if(!hist.length)return;fut.push(last);last=hist.pop();apply(JSON.parse(last));upd();save()}
 function redo(){if(!fut.length)return;hist.push(last);last=fut.pop();apply(JSON.parse(last));upd();save()}
@@ -325,7 +332,11 @@ async function loadShort(h){const[id,k]=h.split('.');const r=await fetch('d/'+id
  const pt=new Uint8Array(await crypto.subtle.decrypt({name:'AES-GCM',iv:buf.subarray(0,12)},key,buf.subarray(12)));
  return JSON.parse(new TextDecoder().decode(await pipe(pt,DecompressionStream)))}
 (async()=>{const h=location.hash.slice(1);if(h){try{apply(/^[\w-]{4,16}\.[\w-]{16,}$/.test(h)?await loadShort(h):await decode(h));msg('Formuläret har lästs in från länken. Fyll i det som saknas och tryck på ”Skapa delningslänk” för att skicka tillbaka.')}catch(e){msg('Kunde inte läsa uppgifterna i länken.')}}let saved=null;try{saved=localStorage.getItem(SKEY)}catch(e){}
- if(saved){try{apply(JSON.parse(saved));msg('Dina sparade ändringar är återställda.')}catch(e){}}
+ SRC=JSON.stringify(collect());
+ if(saved){try{const o=JSON.parse(saved),src=JSON.parse(SRC);let cur;
+  if(o&&o.v===2){cur=o.src===SRC?JSON.parse(o.cur):merge(JSON.parse(o.src),src,JSON.parse(o.cur))}
+  else{cur=o;if(src.d&&src.d.sketch){cur.d=cur.d||{};cur.d.sketch=src.d.sketch}}
+  apply(cur);msg('Dina sparade ändringar är återställda.')}catch(e){}}
  last=JSON.stringify(collect());upd()})();
 window.addEventListener('pagehide',()=>{clearTimeout(tmr);snap()});
 </script>
